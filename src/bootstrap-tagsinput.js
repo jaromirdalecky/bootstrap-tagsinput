@@ -45,6 +45,17 @@
     this.objectItems = options && options.itemValue;
     this.placeholderText = element.hasAttribute('placeholder') ? this.$element.attr('placeholder') : '';
     this.inputSize = Math.max(1, this.placeholderText.length);
+    this.$tester = $('<tester/>').css({
+        position: 'absolute',
+        top: -9999,
+        left: -9999,
+        width: 'auto',
+        fontSize: this.$element.css('fontSize'),
+        fontFamily: this.$element.css('fontFamily'),
+        fontWeight: this.$element.css('fontWeight'),
+        letterSpacing: this.$element.css('letterSpacing'),
+        whiteSpace: 'nowrap'
+    }).appendTo('body');
 
     this.$container = $('<div class="bootstrap-tagsinput"></div>');
     this.$input = $('<input type="text" placeholder="' + this.placeholderText + '"/>').appendTo(this.$container);
@@ -443,10 +454,9 @@
          }
 
         // Reset internal input's size
-        var textLength = $input.val().length,
-            wordSpace = Math.ceil(textLength / 5),
-            size = textLength + wordSpace + 1;
-        $input.attr('size', Math.max(this.inputSize, $input.val().length));
+        var escaped = 'w' + $input.val().replace(/&/g, '&amp;').replace(/\s/g,' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        this.$tester.html(escaped);
+        $input.width(this.$tester.width());
       }, self));
 
       self.$container.on('keypress', 'input', $.proxy(function(event) {
@@ -473,10 +483,9 @@
          }
 
          // Reset internal input's size
-         var textLength = $input.val().length,
-            wordSpace = Math.ceil(textLength / 5),
-            size = textLength + wordSpace + 1;
-         $input.attr('size', Math.max(this.inputSize, $input.val().length));
+         var escaped = 'w' + $input.val().replace(/&/g, '&amp;').replace(/\s/g,' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+         this.$tester.html(escaped);
+         $input.width(this.$tester.width());
       }, self));
 
       // Remove icon clicked
@@ -509,6 +518,7 @@
       self.$container.off('keypress', 'input');
       self.$container.off('click', '[role=remove]');
 
+      self.$tester.remove();
       self.$container.remove();
       self.$element.removeData('tagsinput');
       self.$element.show();
